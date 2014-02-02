@@ -1,0 +1,70 @@
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Gritted Grid</title>
+	<style>
+		* {
+			-moz-box-sizing: border-box;
+			-webkit-box-sizing: border-box;
+			box-sizing: border-box;
+		}
+		html, body {
+			font-family: Georgia, Serif;
+			font-size: 20px;
+			background-color: #333;
+		}
+		h1 {
+			font-size: 2rem;
+			color: #ddd;
+		}
+		#grid {
+			position: relative;
+			width: 100%;
+			overflow: hidden;
+		}
+		.floating {
+			float: left;
+			background-color: #444;
+			width: 150px;
+			height: 150px;
+			margin: 10px;
+		}
+	</style>
+</head>
+<body>
+	<h1>This Grid is gritted</h1>
+	<div id="grid">
+
+	</div>
+
+	<script src='http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js'></script>
+	<script>
+		window.jQuery || document.write('<script src="lib/jquery-1.10.2.min.js"><\/script>');
+	</script>
+
+	<script src="js/jquery.gritted.js"></script>
+	<script>
+		Array.prototype.randomElement = function (howMany) {
+			return this[Math.floor(Math.random() * this.length)]
+		}
+
+		var colors = ["BLANCHEDALMOND", "LEMONCHIFFON", "CORNSILK", 
+					  "CORAL", "INDIANRED", "ORANGE", "ORANGERED"];
+		var $grid = $("#grid");
+
+		// create our content
+		for (var i=0; i<66; i++) {
+			$("<div>")
+				.addClass("floating")
+				.css({backgroundColor: colors.randomElement()})
+				.appendTo($grid);
+		}
+
+		// Create the grid with the holes pattern
+		$grid.gritted({
+			holes: "A3, A5, B2, B6, C3, C5, D2, D6, E3, E5"
+		});
+
+	</script>
+</body>
+</html>
