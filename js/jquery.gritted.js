@@ -5,6 +5,7 @@
  * @date 2014-02-01
  */
 (function(w, $) {
+"use strict";
 
 	var _ALPHABET = " ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
@@ -40,21 +41,25 @@
 
 	// Some predefined filters
 	Gritted.filters = {
-		dissolve: function($grid, $elt, i) {
+		default: function($grid, $elt, i) {
+			return {};
+		},
+		explode: function($grid, $elt, i) {
 			var w = $grid.width(), h = $grid.height();
-			$elt.animate({
-				top: random([-1.5*h, -0.5*h], [1.5*h, 2.5*h]),
-				left: random([-1.5*w, -0.5*w], [1.5*w, 2.5*w])
-			});
+			return {
+				top: random([[-1.5*h, -0.5*h], [1.5*h, 2.5*h]]),
+				left: random([[-1.5*w, -0.5*w], [1.5*w, 2.5*w]])
+			};
 		}	
 	} 
 
 	Gritted.DEFAULTS = {
 		cols: 10, rows: 10, // grids dimensions
 		fillItemsClass: "floating", // default class name for filling (invisible floating) elements
+		filteredItemsClass: "filtered",
 		duration: 1000, 
 		easing: "",
-		filterOut: Gritted.filters.dissolve
+		filterOut: Gritted.filters.default
 	};
 
 	Gritted.prototype = {
@@ -66,18 +71,22 @@
 			var self = this,
 				holes  = self.holes,
 				duration = self.settings.duration,
+				filterClass = self.filterClass,
+				filterOut = self.settings.filterOut,
 				elements = self.elements, // clone 
 				gridItems = self.gridItems,
 				lastYPos = -666,
 				i = 0, lenny = gridItems.length,
 				j = 0, jenny = elements.length,
-				col = 1, line = 0;	
+				col = 1, line = 0,
+				pos, x, y, gridPosition, destination,
+				$elt; // each element to reposition
 
 			while (i < lenny && j < jenny) {
 
-				var offset = gridItems[i].position(), 
-					x = offset.left,
-					y = offset.top;
+				$elt = elements[j];
+				pos = gridItems[i].position();
+				x = pos.left; y = pos.top;
 
 				if (y !== lastYPos) {
 					line++;
@@ -86,13 +95,20 @@
 					col++;
 				}
 
-				var gridPosition = new GridPosition(i, col, line);
+				gridPosition = new GridPosition(i, col, line);
 
-				if (!gridPosition.isHole(holes)) {
-					elements[j].text(gridPosition.name).animate({
-						left: x, 
-						top: y
-					}, duration);
+				if (!gridPosition.isHole(holes)) { // place an element
+
+					destination = { left: x, top: y };
+
+					if (filterClass) { // try to see if we must filter out that element
+						if (!$elt.hasClass(filterClass) && !$elt.hasClass("filtered")) {
+							destination = filterOut(self.$grid, elements[j], j);
+							$elt.addClass("filtered");
+						}
+					}
+					
+					$elt.text(gridPosition.name).animate(destination, duration);
 					j++;
 				}
 				
@@ -109,9 +125,21 @@
 			this.numberOfColumns = nb;
 			return hasChanged;
 		},
-		filter: function(flt) {
-			this.filter = flt;
-			this.redispatch();
+		/**
+		 * Apply a filter 
+		 */
+		filter: function(className, filterOut) {
+			var gritted = this;
+
+			if (className !== gritted.filterClass) { // blank filter : display all
+				$(".filtered", gritted.$grid).removeClass("filtered");
+				gritted.filterClass = className;
+
+				if (filterOut) {
+					gritted.settings.filterOut = filterOut;
+				}
+				gritted.redispatch();
+			}
 		},
 		defineHoles: function(def) {
 			this.holes = parseHolesDef(def);

@@ -22,17 +22,46 @@
 			width: 100%;
 			overflow: hidden;
 		}
-		.floating {
+		.colorbox {
 			float: left;
+			cursor: pointer;
 			background-color: #444;
 			width: 150px;
 			height: 150px;
 			margin: 10px;
 		}
+		#filters .colorbox {
+			position: relative;
+			top: -1em;
+			width: 40px;
+			height: 30px;
+		}
+		#filters label {
+			float: left;
+			color: #ddd;
+		}
+
+		.blanchedalmond { background-color: blanchedalmond; }
+		.lemonchiffon { background-color: lemonchiffon; }
+		.cornsilk { background-color: cornsilk; }
+		.coral { background-color: coral; }
+		.indianred { background-color: indianred; }
+		.orange { background-color: orange; }
+		.orangered { background-color: orangered; }
+
+		.filtered {
+			opacity: 0;
+			transition: opacity 1.5s;
+		}
+
 	</style>
 </head>
 <body>
 	<h1>This Grid is gritted</h1>
+	<div id="filters">
+		<label>Click on a colour to filter</label>
+		<div class="colorbox"></div>
+	</div>
 	<div id="grid">
 
 	</div>
@@ -48,21 +77,33 @@
 			return this[Math.floor(Math.random() * this.length)]
 		}
 
-		var colors = ["BLANCHEDALMOND", "LEMONCHIFFON", "CORNSILK", 
-					  "CORAL", "INDIANRED", "ORANGE", "ORANGERED"];
-		var $grid = $("#grid");
+		var colors = ["blanchedalmond", "lemonchiffon", "cornsilk", 
+					  "coral", "indianred", "orange", "orangered"];
+		var $filterBox = $("#filters"),
+			$grid = $("#grid");
 
 		// create our content
-		for (var i=0; i<66; i++) {
+		for (var i=0; i<colors.length; i++) {
 			$("<div>")
-				.addClass("floating")
-				.css({backgroundColor: colors.randomElement()})
+				.addClass("colorbox " + colors[i])
+				.appendTo($filterBox);
+		}
+		for (i=0; i<66; i++) {
+			$("<div>")
+				.addClass("colorbox " + colors.randomElement())
 				.appendTo($grid);
 		}
 
 		// Create the grid with the holes pattern
 		$grid.gritted({
-			holes: "A3, A5, B2, B6, C3, C5, D2, D6, E3, E5"
+			holes: "A3, A5, B2, B6, C3, C5, D2, D6, E3, E5",
+			fillItemsClass: "colorbox"
+		});
+
+		// filter elements of the choosen color
+		$filterBox.on("click", ".colorbox", function(evt) {
+			var className = this.className.replace("colorbox ", "");
+			$grid.data("gritted").filter(className);
 		});
 
 	</script>
