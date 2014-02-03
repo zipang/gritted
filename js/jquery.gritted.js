@@ -77,6 +77,7 @@
 				i = 0, lenny = gridItems.length,
 				j = 0, jenny = elements.length,
 				col = 1, line = 0,
+				w = gridItems[0].width(), h = gridItems[0].height(),
 				pos, x, y, gridPosition, destination, advanceToNextPosition,
 				$elt; // each element to reposition
 
@@ -103,7 +104,7 @@
 
 				if (!gridPosition.isHole(holes)) { // place an element
 
-					destination = { left: x, top: y };
+					destination = { left: x, top: y, width: w, height: h };
 
 					if (filterClass) { // try to see if we must filter out that element
 						if (!$elt.hasClass(filterClass) && !$elt.hasClass("filtered")) {

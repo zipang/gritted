@@ -32,6 +32,13 @@
 					top:  random([[-0.5*h, -0.1*h], [1.1*h, 1.5*h]]),
 					left: random([[-0.5*w, -0.1*w], [1.1*w, 1.3*w]])
 				};
+			},
+			implode: function() {
+				var midX = Math.floor($grid.width()/2), midY = Math.floor($grid.height()/2);
+				return {
+					top:  midY, left: midX,
+					width: 0, height: 0
+				};
 			}
 		});
 	}
