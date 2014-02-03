@@ -10,28 +10,31 @@
 	var _ALPHABET = " ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 	function Gritted($grid, options) {
-		this.settings = $.extend({}, Gritted.DEFAULTS, $grid.data(), options);
-		this.$grid = $grid;
+		var grit = this;
+
+		grit.settings = $.extend({}, Gritted.DEFAULTS, $grid.data(), options);
+		grit.$grid = $grid;
 
 		// remove the original elements
 		var $elements = $grid.children().remove().css({position: "absolute", top: -500, left: -500});
-		this.elements = $.map($elements, $);
+		grit.elements = $.map($elements, $);
 
-		// fill the grid with the desired coutn of floating elements 
-		var count = this.settings.cols * this.settings.rows; 
+		// fill the grid with the desired number of floating elements 
+		var count = grit.settings.cols * grit.settings.rows; 
 		$grid.html(
-			new Array(count+1).join("<div class=\"" + this.settings.fillItemsClass + "\"></div>")
+			new Array(count+1).join("<div class=\"" + grit.settings.fillItemsClass + "\"></div>")
 		);
 
-		var $gridItems = $grid.children(); // new 
-		this.gridItems = $.map($gridItems, $);
+		var $gridItems = $grid.children();
+		grit.gridItems = $.map($gridItems, $);
+		grit.columnCount(); // get the real columns count
 
 		$elements.appendTo($grid); // re-append now absolute elements
 
-		this.defineHoles(this.settings.holes);
+		// Set the holes and redispatch our elements around
+		grit.defineHoles(grit.settings.holes);
 
-		// register listener for size change
-		var grit = this;
+		// register listener for layout change
 		function redispatchIfNeeded() {
 			if (grit.hasChanged()) grit.redispatch();
 		}
@@ -43,23 +46,17 @@
 	Gritted.filters = {
 		default: function($grid, $elt, i) {
 			return {};
-		},
-		explode: function($grid, $elt, i) {
-			var w = $grid.width(), h = $grid.height();
-			return {
-				top: random([[-1.5*h, -0.5*h], [1.5*h, 2.5*h]]),
-				left: random([[-1.5*w, -0.5*w], [1.5*w, 2.5*w]])
-			};
-		}	
+		}
 	} 
 
 	Gritted.DEFAULTS = {
 		cols: 10, rows: 10, // grids dimensions
 		fillItemsClass: "floating", // default class name for filling (invisible floating) elements
 		filteredItemsClass: "filtered",
+		filterOut: "slideLeft",
+		filterFillHoles: true,
 		duration: 1000, 
-		easing: "",
-		filterOut: Gritted.filters.default
+		easing: ""
 	};
 
 	Gritted.prototype = {
@@ -73,26 +70,33 @@
 				duration = self.settings.duration,
 				filterClass = self.filterClass,
 				filterOut = self.settings.filterOut,
-				elements = self.elements, // clone 
+				filterFillHoles = self.settings.filterFillHoles,
+				elements = self.elements,
 				gridItems = self.gridItems,
 				lastYPos = -666,
 				i = 0, lenny = gridItems.length,
 				j = 0, jenny = elements.length,
 				col = 1, line = 0,
-				pos, x, y, gridPosition, destination,
+				pos, x, y, gridPosition, destination, advanceToNextPosition,
 				$elt; // each element to reposition
+
+			// Check existence of filter method
+			if (typeof filterOut === "string") {
+				filterOut = self.settings.filterOut = Gritted.filters[filterOut] || Gritted.filters.default;
+			}
 
 			while (i < lenny && j < jenny) {
 
 				$elt = elements[j];
 				pos = gridItems[i].position();
 				x = pos.left; y = pos.top;
+				advanceToNextPosition = true;
 
 				if (y !== lastYPos) {
 					line++;
 					lastYPos = y; col = 1;
 				} else {
-					col++;
+					col = (i % self._numberOfColumns) + 1;
 				}
 
 				gridPosition = new GridPosition(i, col, line);
@@ -105,6 +109,7 @@
 						if (!$elt.hasClass(filterClass) && !$elt.hasClass("filtered")) {
 							destination = filterOut(self.$grid, elements[j], j);
 							$elt.addClass("filtered");
+							if (filterFillHoles) advanceToNextPosition = false;
 						}
 					}
 					
@@ -112,32 +117,38 @@
 					j++;
 				}
 				
-				i++;
+				if (advanceToNextPosition) i++;
 			};
 		},
 		/**
 		 * @return the current numer of columns of this grid
 		 */
-		hasChanged: function() {
-			var hasChanged = false, nb = 1, col = 1, top = this.gridItems[0].position().top;
+		columnCount: function() {
+			var nb = 1, col = 1, top = this.gridItems[0].position().top;
 			while (this.gridItems[col++].position().top === top) nb++;
-			hasChanged = (nb !== this.numberOfColumns);
-			this.numberOfColumns = nb;
-			return hasChanged;
+			return this._numberOfColumns = nb;
+		},
+		/**
+		 * @return TRUE if the layout (number of columns) has changed since last call 
+		 */
+		hasChanged: function() {
+			var nb = this._numberOfColumns;
+			return (this.columnCount() !== nb);
 		},
 		/**
 		 * Apply a filter 
 		 */
-		filter: function(className, filterOut) {
+		filter: function(className, options) {
 			var gritted = this;
 
 			if (className !== gritted.filterClass) { // blank filter : display all
 				$(".filtered", gritted.$grid).removeClass("filtered");
 				gritted.filterClass = className;
 
-				if (filterOut) {
-					gritted.settings.filterOut = filterOut;
+				if (options) { // override some options 
+					$.extend(gritted.settings, options);
 				}
+
 				gritted.redispatch();
 			}
 		},
@@ -201,7 +212,14 @@
 		}
 	}
 
+	/**
+	 * The jQuery plugin invocation method
+	 * Applied to a container element (the grid) it will fill it with (usually invisible elements)
+	 * and make the original content move fluidly around the holes
+	 */
 	$.fn.gritted = function(options) {
+		if (options === "namespace") return Gritted; // export our constructor
+
 		return $(this).each(function (i, elt) {
 			$(elt).data("gritted", new Gritted($(elt), options));
 		});
