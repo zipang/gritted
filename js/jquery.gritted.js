@@ -36,7 +36,7 @@
 
 		// register listener for layout change
 		function redispatchIfNeeded() {
-			if (grit.hasChanged()) grit.redispatch();
+			if (grit.hasLayoutChanged()) grit.redispatch();
 		}
 		$(w).on("resize", debounce(redispatchIfNeeded, 400));
 	}
@@ -54,7 +54,8 @@
 		fillItemsClass: "floating", // default class name for filling (invisible floating) elements
 		filteredItemsClass: "filtered",
 		filterOut: "slideLeft",
-		filterFillHoles: true,
+		replaceFilteredElements: true,
+		showHolesForLayoutsOver: 1, // minimal number of columns to show holes
 		duration: 1000, 
 		easing: ""
 	};
@@ -67,18 +68,17 @@
 		redispatch: function () {
 			var self = this,
 				holes  = self.holes,
+				noHoles = (self._numberOfColumns <= self.settings.showHolesForLayoutsOver),
 				duration = self.settings.duration,
 				filterClass = self.filterClass,
 				filterOut = self.settings.filterOut,
-				filterFillHoles = self.settings.filterFillHoles,
-				elements = self.elements,
+				replaceFilteredElements = self.settings.replaceFilteredElements,
+				elements  = self.elements,
 				gridItems = self.gridItems,
-				lastYPos = -666,
 				i = 0, lenny = gridItems.length,
 				j = 0, jenny = elements.length,
-				col = 1, line = 0,
 				w = gridItems[0].width(), h = gridItems[0].height(),
-				pos, x, y, gridPosition, destination, advanceToNextPosition,
+				x, y, pos, gridPosition, destination, advanceToNextPosition,
 				$elt; // each element to reposition
 
 			// Check existence of filter method
@@ -88,39 +88,35 @@
 
 			while (i < lenny && j < jenny) {
 
-				$elt = elements[j];
-				pos = gridItems[i].position();
-				x = pos.left; y = pos.top;
+				pos  = gridItems[i].position();
+				gridPosition = new GridPosition(self, i);
 				advanceToNextPosition = true;
 
-				if (y !== lastYPos) {
-					line++;
-					lastYPos = y; col = 1;
-				} else {
-					col = (i % self._numberOfColumns) + 1;
-				}
+				// next element to redispatch on the grid or out
+				$elt = elements[j];
 
-				gridPosition = new GridPosition(i, col, line);
+				if (noHoles || !gridPosition.isHole(holes)) { // place an element here
 
-				if (!gridPosition.isHole(holes)) { // place an element
-
-					destination = { left: x, top: y, width: w, height: h };
+					destination = { left: pos.left, top: pos.top, width: w, height: h };
 
 					if (filterClass) { // try to see if we must filter out that element
+
 						if (!$elt.hasClass(filterClass) && !$elt.hasClass("filtered")) {
+
 							destination = filterOut(self.$grid, elements[j], j);
 							$elt.addClass("filtered");
-							if (filterFillHoles) advanceToNextPosition = false;
+							if (replaceFilteredElements) advanceToNextPosition = false;
 						}
 					}
 					
-					$elt.text(gridPosition.name).animate(destination, duration);
+					$elt.text(gridPosition).animate(destination, duration);
 					j++;
 				}
 				
 				if (advanceToNextPosition) i++;
 			};
 		},
+
 		/**
 		 * @return the current numer of columns of this grid
 		 */
@@ -129,10 +125,11 @@
 			while (this.gridItems[col++].position().top === top) nb++;
 			return this._numberOfColumns = nb;
 		},
+
 		/**
 		 * @return TRUE if the layout (number of columns) has changed since last call 
 		 */
-		hasChanged: function() {
+		hasLayoutChanged: function() {
 			var nb = this._numberOfColumns;
 			return (this.columnCount() !== nb);
 		},
@@ -140,17 +137,17 @@
 		 * Apply a filter 
 		 */
 		filter: function(className, options) {
-			var gritted = this;
+			var grit = this;
 
-			if (className !== gritted.filterClass) { // blank filter : display all
-				$(".filtered", gritted.$grid).removeClass("filtered");
-				gritted.filterClass = className;
+			if (className !== grit.filterClass) { // blank filter : display all
+				$(".filtered", grit.$grid).removeClass("filtered");
+				grit.filterClass = className;
 
 				if (options) { // override some options 
-					$.extend(gritted.settings, options);
+					$.extend(grit.settings, options);
 				}
 
-				gritted.redispatch();
+				grit.redispatch();
 			}
 		},
 		defineHoles: function(def) {
@@ -201,17 +198,38 @@
 	/**
 	 * 1-based position + A1/B2 style base posiiton
 	 */
-	function GridPosition(index, col, line) {
-		this.index = index+1;
-		this.name = _ALPHABET[line] + col; // chess style coords
+	function GridPosition(grit, zero_index) {
+		this.grit = grit;
+		this.index = zero_index;
 	}
 
 	GridPosition.prototype = {
-		isHole: function(holes) {
-			if (!holes) return false;
-			return holes[this.index] || holes[this.name];
+		toString: function() {
+			var line = Math.floor(this.index / this.grit._numberOfColumns) + 1,
+				col  = (this.index % this.grit._numberOfColumns) + 1;
+			return (_ALPHABET[line] + col); // chess style coords
+		},
+		isHole: function() {
+			var holesDef = this.grit.holes;
+			return holesDef["" + this] || holesDef[this.index+1];
+		},
+		makeHole: function() {
+			this.grit.holes["" + this] = true;
+		},
+		removeHole: function() {
+			delete this.grit.holes["" + this];
+		},
+		toggleHole: function(mode) {
+			var holesDef = this.grit.holes;
+			if (mode === "index") {
+				if (holesDef[this.index+1]) delete holesDef[this.index+1]; else holesDef[this.index+1] = true;	
+			} else {
+				var name = this.getName();
+				if (holesDef[name]) delete holesDef[name]; else holesDef[name] = true;	
+			}
 		}
 	}
+	GridPosition.prototype.getName = GridPosition.prototype.toString;
 
 	/**
 	 * The jQuery plugin invocation method
