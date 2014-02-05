@@ -1,5 +1,12 @@
 (function(w, $) {
 
+	function random(plages) {
+		var plage = plages.random(),
+			min = plage[0], max = plage[1];
+
+		return min + Math.floor(Math.random()*(max - min));
+	}
+
 	if ($.fn.gritted) { // is our plugin defined ?
 
 		var namespace = $.fn.gritted("namespace"); // where to store the filters
@@ -27,7 +34,8 @@
 				}
 			},
 			explode: function($grid, $elt, i) {
-				var w = $grid.width(), h = $grid.height();
+				var w = $grid.width(), 
+					h = $grid.height();
 				return {
 					top:  random([[-0.5*h, -0.1*h], [1.1*h, 1.5*h]]),
 					left: random([[-0.5*w, -0.1*w], [1.1*w, 1.3*w]])
