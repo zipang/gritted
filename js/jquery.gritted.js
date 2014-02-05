@@ -170,13 +170,6 @@
 
 	Array.prototype.random = function() { return this[Math.floor(Math.random()*this.length)]; }
 
-	function random(plages) {
-		var plage = plages.random(),
-			min = plage[0], max = plage[1];
-
-		return min + Math.floor(Math.random()*(max - min));
-	}
-
 	/**
 	 * From 
 	 */
