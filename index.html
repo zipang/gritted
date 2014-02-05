@@ -59,6 +59,7 @@
 		}
 
 	</style>
+	<script charset="utf-8" src="lib/plugins/Modernizr.min.js"></script>
 </head>
 <body>
 	<h1>This Grid is gritted</h1>
@@ -76,10 +77,22 @@
 			'<script src="lib/jquery-1.10.2.min.js"><\/script>'
 		);
 	</script>
-
-	<script src="js/jquery.gritted.min.js"></script>
 	<script>
-		Array.prototype.randomElement = function (howMany) {
+		yepnope({
+			test: Modernizr.csstransitions,
+		  	yep: ["lib/plugins/jquery.transit.min.js"],
+			callback: function () {
+				$.fn.animate = $.fn.transition;
+				console.log("Now using CSS transitions");
+			}
+		});
+
+	</script>
+
+	<script src="js/jquery.gritted.js"></script>
+	<script src="js/jquery.gritted.filters.js"></script>
+	<script>
+		Array.prototype.random = function (howMany) {
 			return this[Math.floor(Math.random() * this.length)]
 		}
 
@@ -99,7 +112,7 @@
 		}
 		for (i=0; i<rows*cols; i++) {
 			$("<div>")
-				.addClass("colorbox " + colors.randomElement())
+				.addClass("colorbox " + colors.random())
 				.appendTo($grid);
 		}
 
@@ -107,6 +120,7 @@
 		$grid.gritted({
 			holes: "A3, A5, B2, B4, B6, C3, C4, C5, D4, E4, F2, F3, F4, F5, F6",
 			fillItemsClass: "colorbox",
+			filteredClass: "",
 			cols: cols,
 			rows: rows
 		});

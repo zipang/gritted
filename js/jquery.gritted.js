@@ -10,9 +10,9 @@
 	var _ALPHABET = " ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 	function Gritted($grid, options) {
-		var grit = this;
+		var grit = this,
+			settings = grit.settings = $.extend({}, Gritted.DEFAULTS, $grid.data(), options);
 
-		grit.settings = $.extend({}, Gritted.DEFAULTS, $grid.data(), options);
 		grit.$grid = $grid;
 
 		// remove the original elements
@@ -20,7 +20,7 @@
 		grit.elements = $.map($elements, $);
 
 		// fill the grid with the desired number of floating elements
-		var count = grit.settings.cols * grit.settings.rows;
+		var count = settings.cols * settings.rows;
 		$grid.html(
 			new Array(count+1).join("<div class=\"" + grit.settings.fillItemsClass + "\"></div>")
 		);
@@ -32,13 +32,13 @@
 		$elements.appendTo($grid); // re-append now absolute elements
 
 		// Set the holes and redispatch our elements around
-		grit.defineHoles(grit.settings.holes);
+		grit.defineHoles(settings.holes);
 
 		// register listener for layout change
 		function redispatchIfNeeded() {
 			if (grit.hasLayoutChanged()) grit.redispatch();
 		}
-		$(w).on("resize", debounce(redispatchIfNeeded, 400));
+		$(w).on("resize orientationchange", debounce(redispatchIfNeeded, 400));
 	}
 
 
@@ -142,7 +142,7 @@
 				filteredClass = grit.settings.filteredClass;
 
 			if (className !== grit.filterClass) { // blank filter : display all
-				$("." + filteredClass, grit.$grid).removeClass(filteredClass);
+				if (filteredClass) $("." + filteredClass, grit.$grid).removeClass(filteredClass);
 				grit.filterClass = className;
 
 				if (options) { // override some options
@@ -170,8 +170,6 @@
 		};
 	};
 
-
-	Array.prototype.random = function() { return this[Math.floor(Math.random()*this.length)]; }
 
 	/**
 	 * From
