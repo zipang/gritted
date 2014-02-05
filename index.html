@@ -54,6 +54,10 @@
 			transition: opacity 1.5s;
 		}
 
+		#filters .selected {
+			border: 2px solid #ddd;
+		}
+
 	</style>
 </head>
 <body>
@@ -73,8 +77,7 @@
 		);
 	</script>
 
-	<script src="js/jquery.gritted.js"></script>
-	<script src="js/jquery.gritted.filters.js"></script>
+	<script src="js/jquery.gritted.min.js"></script>
 	<script>
 		Array.prototype.randomElement = function (howMany) {
 			return this[Math.floor(Math.random() * this.length)]
@@ -84,7 +87,9 @@
 					  "tomato", "indianred", "orange", "orangered"],
 			filterEffects = ["slideLeft", "slideRight", "slideUp", "slideDown", "explode", "implode"];
 		var $filterBox = $("#filters"),
-			$grid = $("#grid");
+			$grid = $("#grid"),
+			cols = Math.floor($(window).width() / 170),
+			rows = 4;
 
 		// create our content
 		for (var i=0; i<colors.length; i++) {
@@ -92,7 +97,7 @@
 				.addClass("colorbox " + colors[i])
 				.appendTo($filterBox);
 		}
-		for (i=0; i<66; i++) {
+		for (i=0; i<rows*cols; i++) {
 			$("<div>")
 				.addClass("colorbox " + colors.randomElement())
 				.appendTo($grid);
@@ -101,13 +106,20 @@
 		// Create the grid with the holes pattern
 		$grid.gritted({
 			holes: "A3, A5, B2, B4, B6, C3, C4, C5, D4, E4, F2, F3, F4, F5, F6",
-			fillItemsClass: "colorbox"
+			fillItemsClass: "colorbox",
+			cols: cols,
+			rows: rows
 		});
 
 		// filter elements of the choosen color
 		$filterBox.on("click", ".colorbox", function(evt) {
-			var className = this.className.replace("colorbox ", "");
-			$grid.data("gritted").filter(className, {filterOut: filterEffects.random()});
+			var className = this.className.replace("colorbox", "").trim();
+			$grid.data("gritted").filter(className, {
+				filterOut: filterEffects.random()
+			});
+			$filterBox.children()
+				.removeClass("selected")
+				.filter("." + className).addClass("selected");
 		});
 
 	</script>
