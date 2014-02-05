@@ -73,12 +73,10 @@
 				filterClass = self.filterClass,
 				filterOut = self.settings.filterOut,
 				replaceFilteredElements = self.settings.replaceFilteredElements,
-				elements  = self.elements,
-				gridItems = self.gridItems,
-				i = 0, lenny = gridItems.length,
-				j = 0, jenny = elements.length,
+				gridItems = self.gridItems, i = 0, lenny = gridItems.length,
+				elements  = self.elements, j = 0, jenny = elements.length,
 				w = gridItems[0].width(), h = gridItems[0].height(),
-				x, y, pos, gridPosition, destination, advanceToNextPosition,
+				pos, gridPosition, destination, advanceToNextPosition,
 				$elt; // each element to reposition
 
 			// Check existence of filter method
@@ -118,7 +116,7 @@
 		},
 
 		/**
-		 * @return the current numer of columns of this grid
+		 * @return the current number of columns of this grid
 		 */
 		columnCount: function() {
 			var nb = 1, col = 1, top = this.gridItems[0].position().top;
@@ -133,6 +131,7 @@
 			var nb = this._numberOfColumns;
 			return (this.columnCount() !== nb);
 		},
+
 		/**
 		 * Apply a filter 
 		 */
@@ -150,6 +149,7 @@
 				grit.redispatch();
 			}
 		},
+
 		defineHoles: function(def) {
 			this.holes = parseHolesDef(def);
 			this.redispatch();
