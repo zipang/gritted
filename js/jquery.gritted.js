@@ -52,7 +52,7 @@
 	Gritted.DEFAULTS = {
 		cols: 10, rows: 10, // grids dimensions
 		fillItemsClass: "floating", // default class name for filling (invisible floating) elements
-		filteredItemsClass: "filtered",
+		filteredClass: "filtered",
 		filterOut: "slideLeft",
 		replaceFilteredElements: true,
 		showHolesForLayoutsOver: 1, // minimal number of columns to show holes
@@ -67,12 +67,14 @@
 		 */
 		redispatch: function () {
 			var self = this,
+				settings = self.settings,
 				holes  = self.holes,
-				noHoles = (self._numberOfColumns <= self.settings.showHolesForLayoutsOver),
-				duration = self.settings.duration,
+				noHoles = (self._numberOfColumns <= settings.showHolesForLayoutsOver),
+				duration = settings.duration,
 				filterClass = self.filterClass,
-				filterOut = self.settings.filterOut,
-				replaceFilteredElements = self.settings.replaceFilteredElements,
+				filteredClass = settings.filteredClass,
+				filterOut = settings.filterOut,
+				replaceFilteredElements = settings.replaceFilteredElements,
 				gridItems = self.gridItems, i = 0, lenny = gridItems.length,
 				elements  = self.elements, j = 0, jenny = elements.length,
 				w = gridItems[0].width(), h = gridItems[0].height(),
@@ -99,10 +101,10 @@
 
 					if (filterClass) { // try to see if we must filter out that element
 
-						if (!$elt.hasClass(filterClass) && !$elt.hasClass("filtered")) {
+						if (!$elt.hasClass(filterClass) && !$elt.hasClass(filteredClass)) {
 
 							destination = filterOut(self.$grid, elements[j], j);
-							$elt.addClass("filtered");
+							$elt.addClass(filteredClass);
 							if (replaceFilteredElements) advanceToNextPosition = false;
 						}
 					}
@@ -136,10 +138,11 @@
 		 * Apply a filter 
 		 */
 		filter: function(className, options) {
-			var grit = this;
+			var grit = this,
+				filteredClass = grit.settings.filteredClass;
 
 			if (className !== grit.filterClass) { // blank filter : display all
-				$(".filtered", grit.$grid).removeClass("filtered");
+				$("." + filteredClass, grit.$grid).removeClass(filteredClass);
 				grit.filterClass = className;
 
 				if (options) { // override some options 
