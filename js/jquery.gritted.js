@@ -19,8 +19,8 @@
 		var $elements = $grid.children().remove().css({position: "absolute", top: -500, left: -500});
 		grit.elements = $.map($elements, $);
 
-		// fill the grid with the desired number of floating elements 
-		var count = grit.settings.cols * grit.settings.rows; 
+		// fill the grid with the desired number of floating elements
+		var count = grit.settings.cols * grit.settings.rows;
 		$grid.html(
 			new Array(count+1).join("<div class=\"" + grit.settings.fillItemsClass + "\"></div>")
 		);
@@ -47,7 +47,7 @@
 		default: function($grid, $elt, i) {
 			return {};
 		}
-	} 
+	}
 
 	Gritted.DEFAULTS = {
 		cols: 10, rows: 10, // grids dimensions
@@ -56,13 +56,13 @@
 		filterOut: "slideLeft",
 		replaceFilteredElements: true,
 		showHolesForLayoutsOver: 1, // minimal number of columns to show holes
-		duration: 1000, 
+		duration: 1000,
 		easing: ""
 	};
 
 	Gritted.prototype = {
 		/**
-		 * Redispatch filtered elements on the grid, 
+		 * Redispatch filtered elements on the grid,
 		 * taking care of holes
 		 */
 		redispatch: function () {
@@ -108,11 +108,11 @@
 							if (replaceFilteredElements) advanceToNextPosition = false;
 						}
 					}
-					
-					$elt.text(gridPosition).animate(destination, duration);
+
+					$elt.animate(destination, duration);
 					j++;
 				}
-				
+
 				if (advanceToNextPosition) i++;
 			};
 		},
@@ -127,7 +127,7 @@
 		},
 
 		/**
-		 * @return TRUE if the layout (number of columns) has changed since last call 
+		 * @return TRUE if the layout (number of columns) has changed since last call
 		 */
 		hasLayoutChanged: function() {
 			var nb = this._numberOfColumns;
@@ -135,7 +135,7 @@
 		},
 
 		/**
-		 * Apply a filter 
+		 * Apply a filter
 		 */
 		filter: function(className, options) {
 			var grit = this,
@@ -145,7 +145,7 @@
 				$("." + filteredClass, grit.$grid).removeClass(filteredClass);
 				grit.filterClass = className;
 
-				if (options) { // override some options 
+				if (options) { // override some options
 					$.extend(grit.settings, options);
 				}
 
@@ -174,13 +174,13 @@
 	Array.prototype.random = function() { return this[Math.floor(Math.random()*this.length)]; }
 
 	/**
-	 * From 
+	 * From
 	 */
 	function parseHolesDef(def) {
 		var holes = {};
 
 		if (def && def.indexOf(",") !== -1) { // comma separated list of holes
-			
+
 			$.each(def.split(","), function(i, hole) {
 				holes[hole.trim()] = true;
 			});
@@ -218,10 +218,10 @@
 		toggleHole: function(mode) {
 			var holesDef = this.grit.holes;
 			if (mode === "index") {
-				if (holesDef[this.index+1]) delete holesDef[this.index+1]; else holesDef[this.index+1] = true;	
+				if (holesDef[this.index+1]) delete holesDef[this.index+1]; else holesDef[this.index+1] = true;
 			} else {
 				var name = this.getName();
-				if (holesDef[name]) delete holesDef[name]; else holesDef[name] = true;	
+				if (holesDef[name]) delete holesDef[name]; else holesDef[name] = true;
 			}
 		}
 	}
@@ -239,5 +239,5 @@
 			$(elt).data("gritted", new Gritted($(elt), options));
 		});
 	}
-	
+
 })(window, jQuery || Zepto);
