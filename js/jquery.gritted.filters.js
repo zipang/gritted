@@ -41,7 +41,7 @@
 					left: random([[-0.5*w, -0.1*w], [1.1*w, 1.3*w]])
 				};
 			},
-			implode: function() {
+			implode: function($grid, $elt, i) {
 				var midX = Math.floor($grid.width()/2), midY = Math.floor($grid.height()/2);
 				return {
 					top:  midY, left: midX,
