@@ -52,8 +52,9 @@
 	Gritted.DEFAULTS = {
 		cols: 10, rows: 10, // grids dimensions
 		fillItemsClass: "floating", // default class name for filling (invisible floating) elements
-		filteredClass: "filtered",
+		filteredClass: "", // We can apply a special class to the elements being filtered
 		filterOut: "slideLeft",
+		applyOpacityOnFilters: true, // Automatically fade filtered elements
 		replaceFilteredElements: true,
 		showHolesForLayoutsOver: 1, // minimal number of columns to show holes
 		duration: 1000,
@@ -97,13 +98,15 @@
 
 				if (noHoles || !gridPosition.isHole(holes)) { // place an element here
 
-					destination = { left: pos.left, top: pos.top, width: w, height: h };
+					destination = { left: pos.left, top: pos.top, width: w, height: h, opacity: 1 };
 
 					if (filterClass) { // try to see if we must filter out that element
 
 						if (!$elt.hasClass(filterClass) && !$elt.hasClass(filteredClass)) {
 
 							destination = filterOut(self.$grid, elements[j], j);
+
+							if (settings.applyOpacityOnFilters) destination.opacity = 0;
 							$elt.addClass(filteredClass);
 							if (replaceFilteredElements) advanceToNextPosition = false;
 						}
