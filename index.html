@@ -22,7 +22,7 @@
 			width: 100%;
 			overflow: hidden;
 		}
-		.colorbox {
+		.cell, .colorbox {
 			float: left;
 			cursor: pointer;
 			background-color: #444;
@@ -49,11 +49,6 @@
 		.orange { background-color: orange; }
 		.orangered { background-color: orangered; }
 
-		.filtered {
-			opacity: 0;
-			transition: opacity 1.5s;
-		}
-
 		#filters .selected {
 			border: 2px solid #ddd;
 		}
@@ -78,6 +73,7 @@
 		);
 	</script>
 	<script>
+
 		yepnope({
 			test: Modernizr.csstransitions,
 		  	yep: ["lib/plugins/jquery.transit.min.js"],
@@ -91,20 +87,17 @@
 
 	<script src="js/jquery.gritted.js"></script>
 	<script src="js/jquery.gritted.filters.js"></script>
+
 	<script>
-		Array.prototype.random = function (howMany) {
-			return this[Math.floor(Math.random() * this.length)]
-		}
-
-		var colors = ["papayawhip", "darkseagreen", "sienna", 
-					  "tomato", "indianred", "orange", "orangered"],
-			filterEffects = ["slideLeft", "slideRight", "slideUp", "slideDown", "explode", "implode"];
-		var $filterBox = $("#filters"),
-			$grid = $("#grid"),
+		
+		var $grid = $("#grid"),
+			$filterBox = $("#filters"),			
 			cols = Math.floor($(window).width() / 170),
-			rows = 4;
+			rows = 4,
+			colors = ["papayawhip", "darkseagreen", "sienna", 
+					  "tomato", "indianred", "orange", "orangered"];
 
-		// create our content
+		// One coloured box to filter 
 		for (var i=0; i<colors.length; i++) {
 			$("<div>")
 				.addClass("colorbox " + colors[i])
@@ -116,11 +109,10 @@
 				.appendTo($grid);
 		}
 
-		// Create the grid with the holes pattern
+		// Create the 'grit' with the holes pattern
 		$grid.gritted({
 			holes: "A3, A5, B2, B4, B6, C3, C4, C5, D4, E4, F2, F3, F4, F5, F6",
 			fillItemsClass: "colorbox",
-			filteredClass: "",
 			cols: cols,
 			rows: rows
 		});
@@ -129,7 +121,7 @@
 		$filterBox.on("click", ".colorbox", function(evt) {
 			var className = this.className.replace("colorbox", "").trim();
 			$grid.data("gritted").filter(className, {
-				filterOut: filterEffects.random()
+				filterOut: "random"
 			});
 			$filterBox.children()
 				.removeClass("selected")
