@@ -36,6 +36,9 @@
 			width: 40px;
 			height: 30px;
 		}
+		#grid .colorbox {
+			pointer-events:none; 
+		}
 		#filters label {
 			float: left;
 			color: #ddd;
@@ -126,6 +129,11 @@
 			$filterBox.children()
 				.removeClass("selected")
 				.filter("." + className).addClass("selected");
+		});
+
+		$grid.on("click", ".cell", function(evt) {
+			$(this).data("grid-position")
+				.toggleHole();
 		});
 
 	</script>
