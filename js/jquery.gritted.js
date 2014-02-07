@@ -57,9 +57,9 @@
 		cellItemsClass: "cell", // default class name for filling (invisible floating) elements
 		//filteredClass: "", // We can apply a special class to the elements being filtered
 		//filterAnimation: "",
-		applyOpacityOnFilters: true, // Automatically fade filtered elements
-		replaceFilteredElements: true,
-		showHolesForLayoutsOver: 1, // minimal number of columns to show holes
+		fadeFiltered: true, // Automatically fade filtered elements
+		replaceFiltered: true,
+		minLayout: 1, // minimal number of columns to show holes
 		duration: 1000
 	};
 
@@ -72,12 +72,12 @@
 			var self = this,
 				settings = self.settings,
 				holes  = self.holes,
-				noHoles = (self._numberOfColumns <= settings.showHolesForLayoutsOver),
+				noHoles = (self._numberOfColumns <= settings.minLayout),
 				duration = settings.duration,
 				filterClass = self.filterClass,
 				filteredClass = settings.filteredClass,
 				filterAnimation = settings.filterAnimation,
-				replaceFilteredElements = settings.replaceFilteredElements,
+				replaceFiltered = settings.replaceFiltered,
 				cells = self.cells, i = 0, lenny = cells.length,
 				elements  = self.elements, j = 0, jenny = elements.length,
 				w = cells[0].width(), h = cells[0].height(),
@@ -103,9 +103,9 @@
 						// this element must be filtered 
 						destination = filterAnimation(self.$grid, elements[j], j);
 
-						if (settings.applyOpacityOnFilters) destination.opacity = 0;
+						if (settings.fadeFiltered) destination.opacity = 0;
 						$elt.addClass(filteredClass);
-						if (replaceFilteredElements) advanceToNextPosition = false;
+						if (replaceFiltered) advanceToNextPosition = false;
 
 					} else {
 						// the destination is the cell position, with full opacity
