@@ -27,7 +27,7 @@
 
 		grit.cells = $.map($grid.children(), function(cell, i) {
 			var $cell = $(cell);
-			$cell.gridPosition = new GridPosition(grit, $cell, i);
+			$cell.data("grid-position", new GridPosition(grit, $cell, i));
 			return $cell;
 		});
 		grit.columnCount(); // get the real columns count
@@ -69,6 +69,7 @@
 		 * taking care of holes
 		 */
 		redispatch: function () {
+
 			var self = this,
 				settings = self.settings,
 				holes  = self.holes,
@@ -91,7 +92,7 @@
 
 			while (i < lenny && j < jenny) {
 
-				pos  = cells[i].gridPosition;
+				pos  = cells[i].data("grid-position");
 				advanceToNextPosition = true;
 
 				// next element to redispatch on the grid or out
@@ -215,19 +216,20 @@
 			return holesDef["" + this] || holesDef[this.index+1];
 		},
 		makeHole: function() {
-			this.grit.holes["" + this] = true;
+			var grit = this.grit;
+			grit.holes["" + this] = true;
+			grit.redispatch();
 		},
 		removeHole: function() {
 			delete this.grit.holes["" + this];
 		},
 		toggleHole: function(mode) {
-			var holesDef = this.grit.holes;
-			if (mode === "index") {
-				if (holesDef[this.index+1]) delete holesDef[this.index+1]; else holesDef[this.index+1] = true;
-			} else {
-				var name = this.getName();
-				if (holesDef[name]) delete holesDef[name]; else holesDef[name] = true;
-			}
+			var grit = this.grit,
+				holesDef = grit.holes,
+				holePos = (mode === "index") ? grit.index + 1 : "" + this;
+			
+			holesDef[holePos] = !holesDef[holePos];
+			grit.redispatch();
 		}
 	}
 	GridPosition.prototype.getName = GridPosition.prototype.toString;
