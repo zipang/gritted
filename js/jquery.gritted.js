@@ -100,20 +100,26 @@
 
 				if (noHoles || !pos.isHole(holes)) { // place an element here
 
-					if (filterClass && !$elt.hasClass(filterClass) && !$elt.hasClass(filteredClass)) {
-						// this element must be filtered 
-						destination = filterAnimation(self.$grid, elements[j], j);
-
-						if (settings.fadeFiltered) destination.opacity = 0;
-						$elt.addClass(filteredClass);
+					if ($elt.hasClass(filteredClass)) {
 						if (replaceFiltered) advanceToNextPosition = false;
-
+						
 					} else {
-						// the destination is the cell position, with full opacity
-						destination = $.extend(pos.cssPosition(), { width: w, height: h, opacity: 1 });
-					}
 
-					$elt.animate(destination, duration);
+						if (filterClass && !$elt.hasClass(filterClass)) {
+							// this element must be filtered 
+							destination = filterAnimation(self.$grid, elements[j], j);
+
+							if (settings.fadeFiltered) destination.opacity = 0;
+							$elt.addClass(filteredClass);
+							if (replaceFiltered) advanceToNextPosition = false;
+
+						} else {
+							// the destination is the cell position, with full opacity
+							destination = $.extend(pos.cssPosition(), { width: w, height: h, opacity: 1 });
+						}
+
+						$elt.animate(destination, duration);
+					}
 					j++;
 				}
 
@@ -196,7 +202,7 @@
 	 * 1-based position + A1/B2 style base posiiton
 	 */
 	function GridPosition(grit, $cell, zero_index) {
-		this.grit = grit;
+		this.grit  = grit;
 		this.$cell = $cell;
 		this.index = zero_index;
 	}
@@ -226,7 +232,7 @@
 		toggleHole: function(mode) {
 			var grit = this.grit,
 				holesDef = grit.holes,
-				holePos = (mode === "index") ? grit.index + 1 : "" + this;
+				holePos = (mode === "index") ? grit.index + 1 : "" + this ;
 			
 			holesDef[holePos] = !holesDef[holePos];
 			grit.redispatch();
