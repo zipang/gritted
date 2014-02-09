@@ -63,11 +63,7 @@
 		return min + Math.floor(Math.random()*(max - min));
 	}
 
-	if ($.fn.gritted) { // is our plugin defined ?
-
-		var namespace = $.fn.gritted("namespace"); // where to store the filters
-
-		namespace.filters = $.extend(namespace.filters, filters);
-	}
+	var gritted = $.fn.gritted; // is our plugin defined ?
+	if (gritted) $.extend(gritted("namespace").filters, filters);
 
 })(window, jQuery || Zepto);
