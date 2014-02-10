@@ -76,7 +76,7 @@
 			var self = this,
 				settings = self.settings,
 				holes  = self.holes,
-				noHoles = (self._numberOfColumns <= settings.minLayout),
+				noHoles = (self._cols <= settings.minLayout),
 				duration = settings.duration,
 				filterClass = self.filterClass,
 				filteredClass = settings.filteredClass,
@@ -135,14 +135,14 @@
 		 */
 		columnCount: function() {
 			var grit = this;
-			return grit._numberOfColumns = Math.floor(grit.$grid.width() / grit.cells[0].outerWidth(true));
+			return grit._cols = Math.floor(grit.$grid.width() / grit.cells[0].outerWidth(true));
 		},
 
 		/**
 		 * @return TRUE if the layout (number of columns) has changed since last call
 		 */
 		hasLayoutChanged: function() {
-			var nb = this._numberOfColumns;
+			var nb = this._cols;
 			return (this.columnCount() !== nb);
 		},
 
@@ -203,8 +203,9 @@
 
 	GridPosition.prototype = {
 		toString: function() {
-			var line = Math.floor(this.index / this.grit._numberOfColumns) + 1,
-				col  = (this.index % this.grit._numberOfColumns) + 1;
+			var i = this.index, columnCount = this.grit._cols,
+				line = Math.floor(i / columnCount) + 1,
+				col  = (i % columnCount) + 1;
 			return (_ALPHABET[line] + col); // chess style coords
 		},
 		cssPosition: function() {
@@ -212,8 +213,8 @@
 			return {top: pos.top, left: pos.left};
 		},
 		isHole: function() {
-			var holesDef = this.grit.holes;
-			return holesDef["" + this] || holesDef[this.index+1];
+			var gp = this, holesDef = gp.grit.holes;
+			return holesDef["" + gp] || holesDef[gp.index+1];
 		},
 		makeHole: function() {
 			var grit = this.grit;
