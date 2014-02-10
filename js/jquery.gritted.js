@@ -10,38 +10,41 @@
 	var _ALPHABET = " ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 	function Gritted($grid, options) {
-		var grit = this,
-			settings = grit.settings = $.extend({}, Gritted.DEFAULTS, $grid.data(), options);
 
-		grit.$grid = $grid;
+		var grit = this,  
+			settings = grit.settings = $.extend({}, Gritted.DEFAULTS, $grid.data(), options),
+			// remove the original elements
+			$elements = (grit.$grid = $grid).children()
+				.remove().css({
+					position: "absolute", top: -500, left: -500
+				}),
+			// Parse the holes definition
+			count = grit.defineHoles(settings.holes);
 
-		// remove the original elements
-		var $elements = $grid.children().remove().css({position: "absolute", top: -500, left: -500});
+		// Remap elements as an Array of jQuery elements for faster access
 		grit.elements = $.map($elements, $);
 
-		// fill the grid with the desired number of floating elements
-		var count = settings.cols * settings.rows;
+		// Fill the grid with the desired number of floating elements
+		count = Math.max(settings.cols * settings.rows, $elements.length + count);
 		$grid.html(
 			new Array(count+1).join("<div class=\"" + settings.cellItemsClass + "\"></div>")
 		);
-
+		// Enhance these cells with their GridPosition
 		grit.cells = $.map($grid.children(), function(cell, i) {
 			var $cell = $(cell);
 			$cell.data("grid-position", new GridPosition(grit, $cell, i));
 			return $cell;
 		});
-		grit.columnCount(); // get the real columns count
 
 		$elements.appendTo($grid); // re-append now absolute elements
 
-		// Set the holes and redispatch our elements around
-		grit.defineHoles(settings.holes);
-
-		// register listener for layout change
+		// Register listener for layout change
 		function redispatchIfNeeded() {
 			if (grit.hasLayoutChanged()) grit.redispatch();
 		}
 		$(w).on("resize orientationchange", debounce(redispatchIfNeeded, 400));
+
+		redispatchIfNeeded(); // of course yes
 	}
 
 
@@ -163,8 +166,17 @@
 		},
 
 		defineHoles: function(def) {
-			this.holes = parseHolesDef(def);
-			this.redispatch();
+			var holes = this.holes = {},
+				hole, count;
+
+			if (def && def.indexOf(",") !== -1) { // comma separated list of holes
+
+				def = def.split(/[\s\,]+/g);
+				count = def.length;
+
+				while (hole  = def.pop()) holes[hole] = true;
+			} // else { // something else like : " XXXX XX \nXXX  XXX"
+			return count;
 		}
 	}
 
@@ -179,24 +191,6 @@
 		};
 	};
 
-
-	/**
-	 * From
-	 */
-	function parseHolesDef(def) {
-		var holes = {};
-
-		if (def && def.indexOf(",") !== -1) { // comma separated list of holes
-
-			$.each(def.split(","), function(i, hole) {
-				holes[hole.trim()] = true;
-			});
-
-		} else { // something else like : " XXXX XX \nXXX  XXX"
-
-		}
-		return holes;
-	}
 
 	/**
 	 * 1-based position + A1/B2 style base posiiton
