@@ -62,4 +62,17 @@ To make elements appear/disappear according to ypur set of criterias, just apply
   });
 ```
 
-- 
+
+## Minimum number of colums
+
+Define the minimum number of columns to display holes. 1 by default.
+
+```javascript
+  /**
+   * In this example, the holes will disappear when your grid has 2 columns or less.
+   */
+  $("#my-grid").gritted({
+    holes: "7, B2",
+    minLayout: 2 // minimal number of columns to show holes
+  });
+```
