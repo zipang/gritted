@@ -2,21 +2,23 @@
  * jQuery Gritted - Show your teeth inside the grid
 
  * @author Zipang
- * @date 2014-02-01
+ * @date 2015-01-06
  */
-(function(w, $) {
+(function(w, undefined) {
 "use strict";
 
-	var _ALPHABET = " ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+	var $ = w.jQuery || w.Zepto,
+		_ALPHABET = " ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 	function Gritted($grid, options) {
 
-		var grit = this,  
+		var grit = this,
 			settings = grit.settings = $.extend({}, Gritted.DEFAULTS, $grid.data(), options),
 			// remove the original elements
 			$elements = (grit.$grid = $grid).children()
-				.remove().css({
-					position: "absolute", top: -500, left: -500
+				.remove()
+					.css({
+						position: "absolute", top: 0, left: -600
 				}),
 			// Parse the holes definition
 			count = grit.defineHoles(settings.holes);
@@ -47,7 +49,6 @@
 		redispatchIfNeeded(); // of course yes
 	}
 
-
 	// Some predefined filters
 	Gritted.filters = {
 		default: function() {
@@ -63,7 +64,7 @@
 		fadeFiltered: true, // Automatically fade filtered elements
 		replaceFiltered: true,
 		minLayout: 1, // minimal number of columns to show holes
-		duration: 1000
+		duration: 500 // time for the cell to go to her place
 	};
 
 	Gritted.prototype = {
@@ -105,11 +106,11 @@
 
 					if ($elt.hasClass(filteredClass)) {
 						if (replaceFiltered) advanceToNextPosition = false;
-						
+
 					} else {
 
 						if (filterClass && !$elt.hasClass(filterClass)) {
-							// this element must be filtered 
+							// this element must be filtered
 							destination = filterAnimation(self.$grid, elements[j], j);
 
 							if (settings.fadeFiltered) destination.opacity = 0;
@@ -153,29 +154,28 @@
 			var grit = this,
 				filteredClass = grit.settings.filteredClass;
 
-			if (className !== grit.filterClass) { // blank filter : display all
-				if (filteredClass) $("." + filteredClass, grit.$grid).removeClass(filteredClass);
-				grit.filterClass = className;
+			if (filteredClass) $("." + filteredClass, grit.$grid).removeClass(filteredClass);
 
-				if (options) { // override some options
-					$.extend(grit.settings, options);
-				}
+			grit.filterClass = className;
 
-				grit.redispatch();
+			if (options) { // override some options
+				$.extend(grit.settings, options);
 			}
+
+			grit.redispatch();
 		},
 
 		defineHoles: function(def) {
 			var holes = this.holes = {},
-				hole, count;
+				hole, count = 0;
 
-			if (def && def.indexOf(",") !== -1) { // comma separated list of holes
-
+			if (def) { // comma separated list of holes
 				def = def.split(/[\s\,]+/g);
 				count = def.length;
 
 				while (hole  = def.pop()) holes[hole] = true;
-			} // else { // something else like : " XXXX XX \nXXX  XXX"
+			}
+
 			return count;
 		}
 	}
@@ -228,7 +228,7 @@
 			var grit = this.grit,
 				holesDef = grit.holes,
 				holePos = (mode === "index") ? grit.index + 1 : "" + this ;
-			
+
 			holesDef[holePos] = !holesDef[holePos];
 			grit.redispatch();
 		}
@@ -248,4 +248,4 @@
 		});
 	}
 
-})(window, jQuery || Zepto);
+})(window);
