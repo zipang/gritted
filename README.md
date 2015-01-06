@@ -51,15 +51,19 @@ Later, holes can still be added or widthdrawn from the grid.
 ## Filters
 
 Filter methods are the most interesting thing on the menu after the holes.
-To make elements appear/disappear according to ypur set of criterias, just apply the filter method on the grid with a class name (the class of elements to retain).
+To make elements appear/disappear according to your set of criterias, just apply the filter method on the grid with a class name (the class of elements to retain).
 
 ```javascript
-  $("#my-grid").data("gritted").filter({
-    filterClass: "orange", // keep the elements that have the 'orange' class
-    filterAnimation: "implode", // available options are 
-                                // slideLeft, slideRight, slideUp, slideDown, explode, implode, disappear, random
-    fillFiltered: true
-  });
+  var grit = $("#my-grid").data("gritted");
+  
+  grit.filter(
+    "orange", // keep only the elements that have the 'orange' class
+    { 
+      filterAnimation: "implode", // available options are 
+                                  // slideLeft, slideRight, slideUp, slideDown, explode, implode, disappear, random
+      fillFiltered: false // fill the holes ? (default : true)
+    }
+  );
 ```
 
 
