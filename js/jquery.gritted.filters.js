@@ -1,4 +1,4 @@
-(function(w, $) {
+(function(w) {
 
 	var filters = {
 
@@ -33,7 +33,7 @@
 			};
 		},
 		explode: function($grid, $elt, i) {
-			var w = $grid.width(), 
+			var w = $grid.width(),
 				h = $grid.height();
 			return {
 				top:  inside([[-0.5*h, -0.1*h], [1.1*h, 1.5*h]]),
@@ -53,7 +53,7 @@
 	} // filters
 
 	Array.prototype.random = function() {
-		return this[Math.floor(Math.random() * this.length)]
+		return this[Math.floor(Math.random() * this.length)];
 	}
 
 	function inside(plages) {
@@ -63,7 +63,8 @@
 		return min + Math.floor(Math.random()*(max - min));
 	}
 
-	var gritted = $.fn.gritted; // is our plugin defined ?
+	var $ = w.jQuery || w.Zepto,
+		gritted = $.fn.gritted; // is our plugin defined ?
 	if (gritted) $.extend(gritted("namespace").filters, filters);
 
-})(window, jQuery || Zepto);
+})(window);
