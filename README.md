@@ -1,11 +1,21 @@
 gritted
 =======
 
-a grid that shows her teeth...
+  a grid that shows her teeth...
+
+
+```html
+  <div id="grit">
+    <a class="grid-item orange">Mr Orange</a>
+    <a class="grid-item pink">Mr Pink</a>
+    <a class="grid-item black">Mr Black</a>
+  </div>
+
+```
 
 ```javascript
-  $("#my-grid").gritted({
-    holes: "A1, A5, B2, B4, C3, D2, D4, E1, E5"
+  $("#grit").gritted({
+    holes: "A2, B1"
   });
 ```
 
@@ -20,17 +30,6 @@ Holes may be given at the creation of the grid, as a combination of chess-like c
   $("#my-grid").gritted({
     holes: "7, B2"
   });
-  
-  /**
-   * In this example, holes are given visually in a grid of 7x7
-   */
-  $("#my-grid").gritted({
-    holes: ". ... .\n"
-         + ".. . ..\n"
-         + "... ...\n"
-         + ".. . ..\n"
-         + ". ... .\n"
-  });  
 ```
 
 Later, holes can still be added or widthdrawn from the grid.
